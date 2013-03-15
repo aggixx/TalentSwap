@@ -1,0 +1,7 @@
+## Interface: 50200
+## Title: TalentSwap
+## Notes: Automatically swaps to the appropriate spell on your actionbars when you switch talents.
+## Author: Pawkets
+## Version: 2.0
+
+TalentSwap.lua
