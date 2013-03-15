@@ -75,72 +75,77 @@ function events:PLAYER_TALENT_UPDATE()
 				dprint("New Talent Found!")
 				-- Get the name and ID of the new spell
 				local spellName = GetTalentName(newTalents[i])
-				local spellId = GetSpellId(spellName)
-				dprint("spellName = "..spellName)
-				dprint("spellId = "..spellId)
-			
-				-- Get the names of the other choices in the tier of talents
-				local spellsToReplace = {}
-				local start = (i-1)*TALENT_COLUMNS+1
-				local stop = (i-1)*TALENT_COLUMNS+3
-				for j=start,stop do
-					local name = GetTalentName(j)
-					if name ~= spellName then
-						table.insert(spellsToReplace, name)
-					end
-				end
-				dprint(spellsToReplace)
-			
-				-- Start fresh with nothing on the cursor
-				ClearCursor()
-				-- Save current sound setting
-				local soundToggle = GetCVar("Sound_EnableAllSound")
-				-- Turn sound off
-				SetCVar("Sound_EnableAllSound", 0)
-				
-				for j=1,MAX_ACTION_BUTTONS do
-					if j < POSSESSION_START or j > POSSESSION_END then
-						local type, id = GetActionInfo(j)
-						if type or id then
-							if type == "spell" or type == "macro" then
-								local actionName
-								if type == "spell" then
-									actionName = GetSpellInfo(id)
-								elseif type == "macro" then
-									actionName = GetMacroInfo(id)
-								end
-								dprint('actionName = "'..actionName..'"', 3)
-								for k=1,#spellsToReplace do
-									if actionName == spellsToReplace[k] then
-										dprint("Found match at Action Slot "..j..".")
-										if IsPassiveSpell(spellName) then
-											if FindMacro(spellName) then
-												PickupAction(j)
-												ClearCursor()
-												PickupMacro(spellName)
-												PlaceAction(j)
-											else
-												dprint("Passives cannot be put on ActionBars, leaving old spell on ActionBars.", 0)
-											end
-										else
-											PickupAction(j)
-											ClearCursor()
-											PickupSpell(spellId)
-											PickupMacro(spellName)
-											PlaceAction(j)
+				if spellName then
+					dprint("spellName = "..spellName)
+					local spellId = GetSpellId(spellName)
+					if spellId then
+						dprint("spellId = "..spellId)
+					
+						-- Get the names of the other choices in the tier of talents
+						local spellsToReplace = {}
+						local start = (i-1)*TALENT_COLUMNS+1
+						local stop = (i-1)*TALENT_COLUMNS+3
+						for j=start,stop do
+							local name = GetTalentName(j)
+							if name ~= spellName then
+								table.insert(spellsToReplace, name)
+							end
+						end
+						dprint(spellsToReplace)
+					
+						-- Start fresh with nothing on the cursor
+						ClearCursor()
+						-- Save current sound setting
+						local soundToggle = GetCVar("Sound_EnableAllSound")
+						-- Turn sound off
+						SetCVar("Sound_EnableAllSound", 0)
+						
+						for j=1,MAX_ACTION_BUTTONS do
+							if j < POSSESSION_START or j > POSSESSION_END then
+								local type, id = GetActionInfo(j)
+								if type or id then
+									if type == "spell" or type == "macro" then
+										local actionName
+										if type == "spell" then
+											actionName = GetSpellInfo(id)
+										elseif type == "macro" then
+											actionName = GetMacroInfo(id)
 										end
-										break
-									else
-										dprint("No match at "..j..'. ("'..actionName..'" vs "'..spellsToReplace[k]..'")', 4)
+										dprint('actionName = "'..actionName..'"', 3)
+										for k=1,#spellsToReplace do
+											if actionName == spellsToReplace[k] then
+												dprint("Found match at Action Slot "..j..".")
+												if IsPassiveSpell(spellName) then
+													if FindMacro(spellName) then
+														PickupAction(j)
+														ClearCursor()
+														PickupMacro(spellName)
+														PlaceAction(j)
+													else
+														dprint("Passives cannot be put on ActionBars, leaving old spell on ActionBars.", 0)
+													end
+												else
+													PickupAction(j)
+													ClearCursor()
+													PickupSpell(spellId)
+													PickupMacro(spellName)
+													PlaceAction(j)
+												end
+												break
+											else
+												dprint("No match at "..j..'. ("'..actionName..'" vs "'..spellsToReplace[k]..'")', 4)
+											end
+										end
 									end
 								end
 							end
 						end
+						
+						-- Restore old sound setting
+						SetCVar("Sound_EnableAllSound", soundToggle)
 					end
 				end
 				
-				-- Restore old sound setting
-				SetCVar("Sound_EnableAllSound", soundToggle)
 			end
 		end
 		currentTalents = newTalents
